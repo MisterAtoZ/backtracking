@@ -1,1 +1,1 @@
-{"value":[{"vrienden":[2,4,5],"nietVrienden":[2],"persoon":1},{"vrienden":[1,5],"nietVrienden":[2],"persoon":3},{"vrienden":[1,3],"nietVrienden":[1,5],"persoon":4},{"vrienden":[4,5],"nietVrienden":[1,3],"persoon":2},{"vrienden":[4,3],"nietVrienden":[1],"persoon":5}]}
+{"value":[[1,2,4,3,5],[1,2,3,4,5],[1,2,3,4,5]]}

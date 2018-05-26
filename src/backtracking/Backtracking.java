@@ -33,20 +33,24 @@ public class Backtracking {
         ArrayList<ArrayList<Integer>> uitkomsten = new ArrayList<>();
         
         for (int i=0; i<invoer.length;i++) {
+            System.out.println("we zitten aan invoer: "+i);
             ArrayList<Persoon> personen = new ArrayList<>(Arrays.asList(invoer[i].getInvoer()));
-            ArrayList<Persoon> uit  = getTafelSchikking(personen);
+/*    for (int k=0; k<personen.size();k++) {
+      System.out.println("de persoon is: "+personen.get(k).getPersoon());
+    }
+*/            ArrayList<Persoon> uit  = getTafelSchikking(personen);
             ArrayList<Integer> namen = new ArrayList<>();
             for(int j=0; j<uit.size();j++) {
                 namen.add(uit.get(j).getPersoon());
             }
             uitkomsten.add(namen);
         }
-        
+        Optional<ArrayList<ArrayList<Integer>>> finaleUitkomsten = Optional.ofNullable(uitkomsten);
         System.out.println("De resultaten zijn weggeschreven in: uitkomsten.json.txt");
 
         try {
            Gson gson = new Gson();
-            String jsonUitvoer = gson.toJson(uitkomsten);
+            String jsonUitvoer = gson.toJson(finaleUitkomsten);
             FileWriter file = new FileWriter("uitkomsten.json.txt");
             file.write(jsonUitvoer);
             file.close();
@@ -65,10 +69,13 @@ public class Backtracking {
     public static ArrayList<Persoon> getTafelSchikking(ArrayList<Persoon> personen) {
         ArrayList<Persoon> tafel = new ArrayList<>();
         ArrayList<Persoon> wachtrij= new ArrayList<>();
-        int aantalPersonen = personen.size();
-        for (int i=0; i<aantalPersonen; i++) {
+        for (int i=0; i<personen.size(); i++) {
             wachtrij.add(personen.get(i));
-            //System.err.println("de persoon: "+ personen.get(i).getPersoon()+" wordt nu in de queue gezet");
+            System.out.println("de persoon in personen: "+personen.get(i).getPersoon());
+            System.out.println("de persoon: "+ wachtrij.get(i).getPersoon()+" wordt nu in de wachtrij gezet");
+            System.out.println("de vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getVrienden().get(0));
+            //System.out.println("de niet vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getNietVrienden().get(0));
+            
         }
         ArrayList<Persoon> tafelFin = rec(wachtrij, tafel, personen, 0);        
         return tafelFin;
@@ -85,9 +92,16 @@ public class Backtracking {
      */
     public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen, int teller) {
          //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
-           
-        //controleren of door de vorige bijvoeging de tafel nog inorde is
+/*    for (int k=0; k<personen.size();k++) {
+        System.out.println("de persoon in de wachtrij is: "+wachtrij.get(k).getPersoon());
+    }
+*/    
+/*    for (int k=0; k<personen.size();k++) {
+        System.out.println("de persoon aan de tafel is: "+tafel.get(k).getPersoon());
+    }
+ */       //controleren of door de vorige bijvoeging de tafel nog inorde is
         if(isGoed(tafel)) {
+            //System.out.println("de persoon die als laatste aan de tafel is gezet, mag daar voorlopig blijven zitten: "+tafel.get(tafel.size()-1).getPersoon());
             if(wachtrij.isEmpty()) {
                 //alle personen zitten
                 //voorlopig zitten ze als een jury allemaal langs elkaar
@@ -101,8 +115,13 @@ public class Backtracking {
             }
         }
         else if (!isGoed(tafel)) {
+            System.out.println("de laatste persoon aan de tafel is niet goed: "+tafel.get(tafel.size()-1).getPersoon());
             //de persoon als laatste toegevoegd aan de tafel is geen vriend van degene aan de tafel en mag er dus niet langs zitten
             //deze persoon moet dus even van de tafel gaan en we moeten opnieuw deze functie uitvoeren om de volgende te testen
+           /* if(wachtrij.get(0).getPersoon()== personen.get(personen.size()-1).getPersoon() && wachtrij.get(1).getPersoon() == personen.get(personen.size()-2).getPersoon()){
+                ArrayList<Persoon> LegeArrayList = new ArrayList<>();
+                return LegeArrayList;
+            }*/
             Persoon slechtePersoon = tafel.get(tafel.size()-1);
             wachtrij.add(slechtePersoon);
             tafel.remove(slechtePersoon);
@@ -199,6 +218,7 @@ public class Backtracking {
             //twee personen die langs elkaar zitten vergelijken
             //er moet niet iedere keer de hele lijst worden afgegaan, daarmee wordt er enkel de laatst toegevoegde gecontroleerd
             Persoon persoon1 = tafel.get(tafel.size()-2);
+            System.out.println("persoon1 is: "+ persoon1.getPersoon());
             Persoon persoon2 = tafel.get(tafel.size()-1);
             if(verg2Pers(persoon1, persoon2)==true) {
                 //de rij is nog oke
@@ -223,9 +243,14 @@ public class Backtracking {
         int naam1 = persoon1.getPersoon();
         int naam2 = persoon2.getPersoon();
         
+        System.out.println("persoon1 is: "+persoon1.getPersoon());
+        System.out.println("persoon2 is: "+persoon2.getPersoon());
+        System.out.println("de grootte van de niet vrienden is: "+persoon1.getNietVrienden().size());
+                
         //eerst controleren of er vijanden zijn van elkaar
         for(int i=0; i<persoon1.getNietVrienden().size();i++) {
             int geenvriendje = persoon1.getNietVrienden().get(i);
+            System.out.println("het eerste niet vriendje is: "+geenvriendje);
             if(naam2 == geenvriendje) {
             //persoon1 is niet bevriend met persoon 2
             //ze mogen dus niet langs elkaar zitten
@@ -234,6 +259,7 @@ public class Backtracking {
         }
         
         for(int i=0; i<persoon2.getNietVrienden().size();i++) {
+            System.out.println("de grootte van niet vrienden is: "+persoon2.getNietVrienden().size());
             int geenvriendje = persoon2.getNietVrienden().get(i);
             if(naam1 == geenvriendje) {
             //persoon1 is niet bevriend met persoon 2

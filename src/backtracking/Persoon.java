@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Persoon {
     //moet een Arraylist met vrienden en een arraylist met niet vrienden hebben en de naam van de persoon als een Integer
     private ArrayList<Integer> vrienden;
-    private ArrayList<Integer> nietVrienden;
+    private ArrayList<Integer> nietvrienden;
     private Integer persoon; //de naam is gewoon een nummertje
 
     /**
@@ -22,7 +22,7 @@ public class Persoon {
      */
     public Persoon(ArrayList<Integer> vrienden, ArrayList<Integer> nietVrienden, Integer persoon) {
         this.vrienden = vrienden;
-        this.nietVrienden = nietVrienden;
+        this.nietvrienden = nietVrienden;
         this.persoon = persoon;
     }
 
@@ -47,10 +47,10 @@ public class Persoon {
     /**
      * getter van de niet vrienden
      * 
-     * @return nietVrienden
+     * @return nietvrienden
      */
     public ArrayList<Integer> getNietVrienden() {
-        return nietVrienden;
+        return nietvrienden;
     }
 
     /**
@@ -59,7 +59,7 @@ public class Persoon {
      * @param nietVrienden de lijst met niet vrienden
      */
     public void setNietVrienden(ArrayList<Integer> nietVrienden) {
-        this.nietVrienden = nietVrienden;
+        this.nietvrienden = nietVrienden;
     }
 
     /**
