@@ -71,9 +71,9 @@ public class Backtracking {
         ArrayList<Persoon> wachtrij= new ArrayList<>();
         for (int i=0; i<personen.size(); i++) {
             wachtrij.add(personen.get(i));
-            System.out.println("de persoon in personen: "+personen.get(i).getPersoon());
-            System.out.println("de persoon: "+ wachtrij.get(i).getPersoon()+" wordt nu in de wachtrij gezet");
-            System.out.println("de vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getVrienden().get(0));
+            //System.out.println("de persoon in personen: "+personen.get(i).getPersoon());
+            //System.out.println("de persoon: "+ wachtrij.get(i).getPersoon()+" wordt nu in de wachtrij gezet");
+            //System.out.println("de vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getVrienden().get(0));
             //System.out.println("de niet vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getNietVrienden().get(0));
             
         }
@@ -105,7 +105,24 @@ public class Backtracking {
             if(wachtrij.isEmpty()) {
                 //alle personen zitten
                 //voorlopig zitten ze als een jury allemaal langs elkaar
-                return tafel;
+                Persoon persoon1 = tafel.get(0);
+                System.out.println("de eerste persoon aan de tafel is: "+persoon1.getPersoon());
+                Persoon persoon2 = tafel.get(tafel.size()-1);
+                System.out.println("de laatste persoon aan de tafel is: "+persoon2.getPersoon());
+                if(verg2Pers(persoon1, persoon2)==true) {
+                    return tafel;
+                }
+                else {
+                    //tellen hoeveel er niet langs de 1e willen zitten, als niemand erlangs wilt zijn return null
+                    //als de twee laatsten er niet langs willen zitte, dan de drie laatste terug in de wachtrij steken in omgekeerde volgorde
+                    
+                    wachtrij.add(persoon2);
+                    tafel.remove(persoon2);
+                    wachtrij.add(tafel.get(tafel.size()-1));
+                    tafel.remove(tafel.size()-1);
+                    return rec(wachtrij, tafel, personen, 0);
+                }
+                
             } else {
                 //de tafel is inorde, er kan een nieuwe persoon worden toegevoegd nu
                 Persoon goed = wachtrij.get(0);
@@ -218,7 +235,6 @@ public class Backtracking {
             //twee personen die langs elkaar zitten vergelijken
             //er moet niet iedere keer de hele lijst worden afgegaan, daarmee wordt er enkel de laatst toegevoegde gecontroleerd
             Persoon persoon1 = tafel.get(tafel.size()-2);
-            System.out.println("persoon1 is: "+ persoon1.getPersoon());
             Persoon persoon2 = tafel.get(tafel.size()-1);
             if(verg2Pers(persoon1, persoon2)==true) {
                 //de rij is nog oke
@@ -245,13 +261,12 @@ public class Backtracking {
         
         System.out.println("persoon1 is: "+persoon1.getPersoon());
         System.out.println("persoon2 is: "+persoon2.getPersoon());
-        System.out.println("de grootte van de niet vrienden is: "+persoon1.getNietVrienden().size());
-                
+        
         //eerst controleren of er vijanden zijn van elkaar
         for(int i=0; i<persoon1.getNietVrienden().size();i++) {
             int geenvriendje = persoon1.getNietVrienden().get(i);
-            System.out.println("het eerste niet vriendje is: "+geenvriendje);
             if(naam2 == geenvriendje) {
+                System.out.println("persoon"+persoon2.getPersoon()+" zit in de slechte lijst van persoon"+persoon1.getPersoon());
             //persoon1 is niet bevriend met persoon 2
             //ze mogen dus niet langs elkaar zitten
                 return false;
@@ -259,9 +274,10 @@ public class Backtracking {
         }
         
         for(int i=0; i<persoon2.getNietVrienden().size();i++) {
-            System.out.println("de grootte van niet vrienden is: "+persoon2.getNietVrienden().size());
             int geenvriendje = persoon2.getNietVrienden().get(i);
             if(naam1 == geenvriendje) {
+                System.out.println("persoon"+persoon1.getPersoon()+" zit in de slechte lijst van persoon"+persoon2.getPersoon());
+            
             //persoon1 is niet bevriend met persoon 2
             //ze mogen dus niet langs elkaar zitten
                 return false;
@@ -287,6 +303,39 @@ public class Backtracking {
         //ze mogen dan langseen zitten om vriendjes te worden
         return true;
     } 
+    
+    
+    private static int controleEersteLaatste(Persoon persoon1, ArrayList<Persoon> personen, ArrayList<Persoon> tafel, int aantal) {
+        //geeft aan hoeveel van degene die op het laatste zitten niet langs de 1e wille zitte
+        //tellen hoeveel
+        Persoon persoon2 = tafel.get(tafel.size()-1);
+        if(vergelijken(persoon1, persoon2)==true) {
+            aantal++;
+            tafel.remove(persoon2);
+            return aantal;
+        }
+        else {
+            return aantal;
+        }
+    }
+    
+    /**
+     * Geeft true als persoon2 in de lijst van persoon1 zit
+     * 
+     * @param persoon1
+     * @param persoon2
+     * @return 
+     */
+    private static boolean vergelijken(Persoon persoon1, Persoon persoon2) {
+        for(int i=0; i<persoon2.getNietVrienden().size();i++) {
+            int geenvriendje = persoon2.getNietVrienden().get(i);
+            if(persoon2.getPersoon() == geenvriendje) {
+                return true;
+            }
+            
+        }
+        return false;
+    }
 
 //====================================================================================================  
 
