@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Proxy.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,17 +28,25 @@ public class Backtracking {
      */
     public static void main(String[] args) {
         //serializePersonen(); //als er een nieuwe json voor de personen te veranderen, kan dat hiermee
-        GsonReader personen = deserializePersonen();
+        GsonReader[] invoer = deserializePersonen();
+        //ArrayList<Persoon> personen = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> uitkomsten = new ArrayList<>();
         
-        Optional<ArrayList<Persoon>> uit  = getTafelSchikking(personen.getPersonen());
-        //de personen worden in de volgorde zoals ze aan tafel zitten weggeschreven
-        //schrijft de volledige persoon weg, niet alleen de naam!
+        for (int i=0; i<invoer.length;i++) {
+            ArrayList<Persoon> personen = new ArrayList<>(Arrays.asList(invoer[i].getInvoer()));
+            ArrayList<Persoon> uit  = getTafelSchikking(personen);
+            ArrayList<Integer> namen = new ArrayList<>();
+            for(int j=0; j<uit.size();j++) {
+                namen.add(uit.get(j).getPersoon());
+            }
+            uitkomsten.add(namen);
+        }
+        
         System.out.println("De resultaten zijn weggeschreven in: uitkomsten.json.txt");
-        //de resultaten worden niet helemaal geladen/weggeschreven zoals in de files op toledo
-        //er kan maar één groep personen aan een tafel worden gezet in het json bestand 
+
         try {
            Gson gson = new Gson();
-            String jsonUitvoer = gson.toJson(uit);
+            String jsonUitvoer = gson.toJson(uitkomsten);
             FileWriter file = new FileWriter("uitkomsten.json.txt");
             file.write(jsonUitvoer);
             file.close();
@@ -53,7 +62,7 @@ public class Backtracking {
      * @param personen de lijst van personen die aan de tafel moeten komen
      * @return Optional<ArrayList<Persoon>> tafelFinito geeft de juiste tafelschikking, als er een is, terug
      */
-    public static Optional<ArrayList<Persoon>> getTafelSchikking(ArrayList<Persoon> personen) {
+    public static ArrayList<Persoon> getTafelSchikking(ArrayList<Persoon> personen) {
         ArrayList<Persoon> tafel = new ArrayList<>();
         ArrayList<Persoon> wachtrij= new ArrayList<>();
         int aantalPersonen = personen.size();
@@ -61,10 +70,8 @@ public class Backtracking {
             wachtrij.add(personen.get(i));
             //System.err.println("de persoon: "+ personen.get(i).getPersoon()+" wordt nu in de queue gezet");
         }
-        ArrayList<Persoon> tafelFin = rec(wachtrij, tafel, personen);
-        Optional<ArrayList<Persoon>> tafelFinito = Optional.ofNullable(tafelFin);
-        
-        return tafelFinito;
+        ArrayList<Persoon> tafelFin = rec(wachtrij, tafel, personen, 0);        
+        return tafelFin;
     }
     
     /**
@@ -76,22 +83,22 @@ public class Backtracking {
      * @param pogingen een groot aantal pogingen om als er geen oplossing is eeen null terug te sturen
      * @return ArrayList<Persoon> geeft een arraylist (tafel) van personen terug met de juiste volgorde dat de personen moeten zitten.
      */
-    public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen) {
+    public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen, int teller) {
          //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
-         
-        if(wachtrij.isEmpty()) {
-            //alle personen zitten
-            //voorlopig zitten ze als een jury allemaal langs elkaar
-            return tafel;
-        }
-        
+           
         //controleren of door de vorige bijvoeging de tafel nog inorde is
         if(isGoed(tafel)) {
-             //de tafel is inorde, er kan een nieuwe persoon worden toegevoegd nu
-            Persoon goed = wachtrij.get(0);
-            wachtrij.remove(0);
-            tafel.add(goed);//nieuwe persoon is aan de wachtrij toegevoegd
-            return rec(wachtrij, tafel, personen); //in deze stap wordt gecontroleerd of de persoon aan de tafel past
+            if(wachtrij.isEmpty()) {
+                //alle personen zitten
+                //voorlopig zitten ze als een jury allemaal langs elkaar
+                return tafel;
+            } else {
+                //de tafel is inorde, er kan een nieuwe persoon worden toegevoegd nu
+                Persoon goed = wachtrij.get(0);
+                wachtrij.remove(0);
+                tafel.add(goed);//nieuwe persoon is aan de wachtrij toegevoegd
+                return rec(wachtrij, tafel, personen, 0); //in deze stap wordt gecontroleerd of de persoon aan de tafel past
+            }
         }
         else if (!isGoed(tafel)) {
             //de persoon als laatste toegevoegd aan de tafel is geen vriend van degene aan de tafel en mag er dus niet langs zitten
@@ -100,14 +107,21 @@ public class Backtracking {
             wachtrij.add(slechtePersoon);
             tafel.remove(slechtePersoon);
             
-            if(1==0) { //als dit de laatste persoon is uit de geteste personen dan moet er nog een persoon van tafel worden gehaald
+            if(teller==wachtrij.size()) { //als dit de laatste persoon is uit de geteste personen dan moet er nog een persoon van tafel worden gehaald
+                //de wachtrij is al eens helemaal doorlopen geweest, er moet nog iemand van de tafel weg
+                Persoon weg = tafel.get(tafel.size()-1);
+                wachtrij.add(weg);
+                tafel.remove(weg);
                 
-            }
-            
+                tafel.add(wachtrij.get(0)); //1e persoon die dan id wachtrij staat aan de tafel zetten en opnieuw testen
+                wachtrij.remove(0);
+                return rec(wachtrij, tafel, personen, 0);
+            } 
             else {
                 tafel.add(wachtrij.get(0));//de 1e persoon in de wachtrij terug toevoegen 
                 wachtrij.remove(0);
-                return rec(wachtrij, tafel, personen);
+                teller++;
+                return rec(wachtrij, tafel, personen, teller);
             }
             
             /* 
@@ -328,12 +342,12 @@ public class Backtracking {
      * 
      * @return persoontjes de personen die rond de tafel moeten komen
      */
-    private static GsonReader deserializePersonen() {
+    private static GsonReader[] deserializePersonen() {
         //String personenjson = serializePersonen();
         //System.out.println("personenjson is: "+personenjson);
         //java.lang.reflect.Type hetType = new TypeToken<ArrayList<Persoon>>(){}.getType();
         //System.out.println("het type is: "+hetType);
-        GsonReader persoontjes = GsonReader.createFromJson("opgaven.json.txt");
+        GsonReader[] persoontjes = GsonReader.createFromJson("opgaven.json.txt");
         //GsonTest personen = new Gson().fromJson(personenjson, GsonReader.class);
         /*System.out.println("de lengte van de personenlijst is: "+persoontjes.personen.size());
         for(int i=0;i<persoontjes.personen.size();i++) {

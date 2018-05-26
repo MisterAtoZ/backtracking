@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  * @author Jonathan
  */
 public class GsonReader {
-    ArrayList<Persoon> personen;
+    private Persoon[] invoer;
         
     /**
      * functie om de gegevens uit het bestand te halen
@@ -22,12 +22,12 @@ public class GsonReader {
      * @param bestandsnaam de naam van het bestand in String vorm
      * @return geeft een GsonReader terug met de array van personen erin
      */
-    public static GsonReader createFromJson(String bestandsnaam) {
+    public static GsonReader[] createFromJson(String bestandsnaam) {
         try {
             Gson gson = new Gson();
             //java.lang.reflect.Type lijstType = new TypeToken<ArrayList<Persoon>>(){}.getType();
             //System.out.println("het type is: "+lijstType);
-            return gson.fromJson(new FileReader(bestandsnaam), GsonReader.class);
+            return gson.fromJson(new FileReader(bestandsnaam), GsonReader[].class);
         }
         catch (FileNotFoundException ex) {
             Logger.getLogger(GsonReader.class.getName()).log(Level.SEVERE, null, ex);
@@ -36,20 +36,11 @@ public class GsonReader {
     }
 
     /**
-     * getter van de personen ArrayList
+     * geeft de array van personen
      * 
-     * @return ArrayList van personen
+     * @return array van de invoer
      */
-    public ArrayList<Persoon> getPersonen() {
-        return personen;
-    }
-
-    /**
-     * setter van de personen ArrayList
-     * 
-     * @param personen de personen voor in de ArrayList
-     */
-    public void setPersonen(ArrayList<Persoon> personen) {
-        this.personen = personen;
+    public Persoon[] getInvoer() {
+        return invoer;
     }
 }
