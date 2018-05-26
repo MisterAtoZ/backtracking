@@ -55,15 +55,13 @@ public class Backtracking {
      */
     public static Optional<ArrayList<Persoon>> getTafelSchikking(ArrayList<Persoon> personen) {
         ArrayList<Persoon> tafel = new ArrayList<>();
-        Queue<Persoon> queue= new LinkedList<>();
+        ArrayList<Persoon> wachtrij= new ArrayList<>();
         int aantalPersonen = personen.size();
-        int pogingen = personen.size()*100;
         for (int i=0; i<aantalPersonen; i++) {
-            queue.add(personen.get(i));
+            wachtrij.add(personen.get(i));
             //System.err.println("de persoon: "+ personen.get(i).getPersoon()+" wordt nu in de queue gezet");
         }
-        int teller = queue.size();
-        ArrayList<Persoon> tafelFin = rec(queue, tafel, teller, pogingen);
+        ArrayList<Persoon> tafelFin = rec(wachtrij, tafel, personen);
         Optional<ArrayList<Persoon>> tafelFinito = Optional.ofNullable(tafelFin);
         
         return tafelFinito;
@@ -72,76 +70,73 @@ public class Backtracking {
     /**
      * De hoofdfunctie om een persoon aan de tafel te zetten
      * 
-     * @param queue de wachtrij die er nog is
+     * @param wachtrij de wachtrij die er nog is
      * @param tafel de lijst van personen die al aan de tafel zitten
      * @param teller telt hoevaak dezelfde grootte wachtrij is getest 
      * @param pogingen een groot aantal pogingen om als er geen oplossing is eeen null terug te sturen
      * @return ArrayList<Persoon> geeft een arraylist (tafel) van personen terug met de juiste volgorde dat de personen moeten zitten.
      */
-    public static ArrayList<Persoon> rec(Queue<Persoon> queue, ArrayList<Persoon> tafel, int teller, int pogingen) {
+    public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen) {
          //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
-        if(pogingen==0){return null;}//heel veel keer geprobeerd maar er komt nog niks uit
-        pogingen--;
-        if(isGoed(tafel, queue)) {
-             //controleren of er een persoon mag zitten, zo ja dan deze toevoegen
-            Persoon goed = queue.poll();
-            tafel.add(goed);
-             if(!queue.isEmpty()) {
-                teller = queue.size();
-                tafel = rec(queue, tafel, teller, pogingen);
-            }
-            else {
-                //nog controleren of de eerste en de laatste met elkaar overeen komen
-                //System.out.println("de personen het laatste in de lijst zijn: "+ tafel.get(tafel.size()-1).getPersoon()+" en: "+tafel.get(0).getPersoon());
-                if(verg2Pers(tafel.get(tafel.size()-1), tafel.get(0))){
-                    return tafel;
-                }
-                else {                  
-                    int tafelGr = tafel.size();
-                    Collections.shuffle(tafel);
-                    for(int i=1; i<tafelGr; i++) { //hele tafel herorganiseren
-                        //System.out.println("de persoon die van tafel wordt gehaald is: "+tafel.get(1).getPersoon());
-                        Persoon persoontje = tafel.get(1);
-                        queue.add(persoontje);
-                        tafel.remove(1);
-                    }
-               Persoon nul = tafel.get(0);
-               queue.add(nul);
-               tafel.remove(0);
-               teller= queue.size();
-               tafel = rec(queue, tafel, teller, pogingen); 
-                    
-                }
-            }
+         
+        if(wachtrij.isEmpty()) {
+            //alle personen zitten
+            //voorlopig zitten ze als een jury allemaal langs elkaar
+            return tafel;
         }
-        else if (!isGoed(tafel, queue)) {
-             //deze persoon is geen vriend van degene aan de tafel en mag er dus niet langs zitten
-             //deze persoon moet dus even uit de poll gaan en we moeten opnieuw deze functie uitvoeren om de volgende te testen
-            Persoon slecht = queue.poll();
-            if(queue.isEmpty() || teller==0) {
+        
+        //controleren of door de vorige bijvoeging de tafel nog inorde is
+        if(isGoed(tafel)) {
+             //de tafel is inorde, er kan een nieuwe persoon worden toegevoegd nu
+            Persoon goed = wachtrij.get(0);
+            wachtrij.remove(0);
+            tafel.add(goed);//nieuwe persoon is aan de wachtrij toegevoegd
+            return rec(wachtrij, tafel, personen); //in deze stap wordt gecontroleerd of de persoon aan de tafel past
+        }
+        else if (!isGoed(tafel)) {
+            //de persoon als laatste toegevoegd aan de tafel is geen vriend van degene aan de tafel en mag er dus niet langs zitten
+            //deze persoon moet dus even van de tafel gaan en we moeten opnieuw deze functie uitvoeren om de volgende te testen
+            Persoon slechtePersoon = tafel.get(tafel.size()-1);
+            wachtrij.add(slechtePersoon);
+            tafel.remove(slechtePersoon);
+            
+            if(1==0) { //als dit de laatste persoon is uit de geteste personen dan moet er nog een persoon van tafel worden gehaald
+                
+            }
+            
+            else {
+                tafel.add(wachtrij.get(0));//de 1e persoon in de wachtrij terug toevoegen 
+                wachtrij.remove(0);
+                return rec(wachtrij, tafel, personen);
+            }
+            
+            /* 
+            Persoon slecht = wachtrij.poll();
+            if(wachtrij.isEmpty() || teller==0) {
                //queue is leeg dus er moet iemand vd tafel weg
-               queue.add(slecht);
+               wachtrij.add(slecht);
                int tafelGr = tafel.size();
                Collections.shuffle(tafel);
                for(int i=1; i<tafelGr; i++) { //hele tafel herorganiseren
                    //System.out.println("de persoon die van tafel wordt gehaald is: "+tafel.get(1).getPersoon());
                    Persoon persoontje = tafel.get(1);
-                   queue.add(persoontje);
+                   wachtrij.add(persoontje);
                    tafel.remove(1);
                }
                Persoon nul = tafel.get(0);
                //System.out.println("de persoon die bij nul van tafel wordt gehaald is: "+tafel.get(0).getPersoon());
-               queue.add(nul);
+               wachtrij.add(nul);
                tafel.remove(0);
-               teller= queue.size();
-               tafel = rec(queue, tafel, teller, pogingen);            
+               teller= wachtrij.size();
+               tafel = rec(wachtrij, tafel, teller, pogingen);            
             }
             else {
-               queue.add(slecht);
+               wachtrij.add(slecht);
                teller = teller-1; 
-               tafel=rec(queue, tafel, teller, pogingen);
+               tafel=rec(wachtrij, tafel, teller, pogingen);
                // de slechte persoon gaat ook nog een plaats moeten krijgen en zal dus achteraan de queue terug worden toegevoegd
             }
+             */
         } 
         //in deze lijst staat de tafelschikking
         return tafel ;
@@ -154,9 +149,11 @@ public class Backtracking {
      * @param queue de wachtrij aan de tafel
      * @return true als de persoon er mag zitten
      */
-    public static boolean isGoed(ArrayList<Persoon> tafel, Queue<Persoon> queue) {
+    public static boolean isGoed(ArrayList<Persoon> tafel) {
+        /*
         //hier controleren of de 2 personen vijanden zijn van elkaar
         Queue<Persoon> queueT = new LinkedList<>(queue);
+        
         if(!queueT.isEmpty()) {//er zijn nog personen zonder plaats
             Persoon test = queueT.poll();
             //personen verg met elkaar
@@ -178,10 +175,30 @@ public class Backtracking {
             }
         }
         return false; 
+        */
+        
+        if(tafel.size()==0 || tafel.size()==1) {
+            //er zit nog niemand of 1 iemand aan de tafel, niemand kan klagen
+            return true;
+        }
+        else {
+            //twee personen die langs elkaar zitten vergelijken
+            //er moet niet iedere keer de hele lijst worden afgegaan, daarmee wordt er enkel de laatst toegevoegde gecontroleerd
+            Persoon persoon1 = tafel.get(tafel.size()-2);
+            Persoon persoon2 = tafel.get(tafel.size()-1);
+            if(verg2Pers(persoon1, persoon2)==true) {
+                //de rij is nog oke
+                return true;
+            }
+            else {
+                //geen vrienden dus mogen ze niet langs elkaar zitten
+                return false;
+            }
+        }
     }
  
     /**
-     * fucntie om te vergelijken of 2 personen bevriend met elkaar zijn of nie
+     * fucntie om te vergelijken of 2 personen bevriend met elkaar zijn of niet
      * 
      * @param persoon1 de eerste persoon
      * @param persoon2 de tweede persoon 
