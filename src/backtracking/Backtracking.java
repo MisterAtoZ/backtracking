@@ -25,12 +25,13 @@ public class Backtracking {
         ArrayList<ArrayList<Integer>> uitkomsten = new ArrayList<>();
         
         for (int i=0; i<invoer.length;i++) {
-            System.out.println("we zitten aan invoer: "+i);
+            System.out.println("invoer: "+i+" geeft als volgorde");
             ArrayList<Persoon> personen = new ArrayList<>(Arrays.asList(invoer[i].getInvoer()));
             ArrayList<Persoon> uit  = getTafelSchikking(personen);
             ArrayList<Integer> namen = new ArrayList<>();
             for(int j=0; j<uit.size();j++) {
                 namen.add(uit.get(j).getPersoon());
+                System.out.println(""+uit.get(j).getPersoon());
             }
             uitkomsten.add(namen);
         }
@@ -73,7 +74,7 @@ public class Backtracking {
      * @param personen alle personen die aan de tafel moeten komen
      * @param teller telt hoevaak dezelfde wachtrij is getest
      * @param parameter telt hoeveel verschillende pogingen al zijn getest
-     * @return ArrayList<Persoon> geeft een ArrayList (tafel) terug met de juiste volgorde dat de personen moeten zitten
+     * @return ArrayList tafel geeft een ArrayList terug met de juiste volgorde dat de personen moeten zitten
      */
     public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen, int teller, int parameter) {
         //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
@@ -102,7 +103,6 @@ public class Backtracking {
             }
         }
         else if (!isGoed(tafel)) {
-            System.out.println("de laatste persoon aan de tafel is niet goed: "+tafel.get(tafel.size()-1).getPersoon());
             //als alle mogelijkheden zijn getest en er werkt nog niks dan moet er een lege ArrayList worden teruggegeven
             //hiervoor dient de parameter
             parameter--;
@@ -174,16 +174,12 @@ public class Backtracking {
         int naam1 = persoon1.getPersoon();
         int naam2 = persoon2.getPersoon();
         
-        System.out.println("persoon1 is: "+persoon1.getPersoon());
-        System.out.println("persoon2 is: "+persoon2.getPersoon());
-        
         //eerst controleren of er vijanden zijn van elkaar
         for(int i=0; i<persoon1.getNietVrienden().size();i++) {
             int geenvriendje = persoon1.getNietVrienden().get(i);
             if(naam2 == geenvriendje) {
-                System.out.println("persoon"+persoon2.getPersoon()+" zit in de slechte lijst van persoon"+persoon1.getPersoon());
-            //persoon1 is niet bevriend met persoon2
-            //ze mogen dus niet langs elkaar zitten
+                //persoon1 is niet bevriend met persoon2
+                //ze mogen dus niet langs elkaar zitten
                 return false;
              }
         }
@@ -191,9 +187,8 @@ public class Backtracking {
         for(int i=0; i<persoon2.getNietVrienden().size();i++) {
             int geenvriendje = persoon2.getNietVrienden().get(i);
             if(naam1 == geenvriendje) {
-                System.out.println("persoon"+persoon1.getPersoon()+" zit in de slechte lijst van persoon"+persoon2.getPersoon());
-            //persoon2 is niet bevriend met persoon1
-            //ze mogen dus niet langs elkaar zitten
+                //persoon2 is niet bevriend met persoon1
+                //ze mogen dus niet langs elkaar zitten
                 return false;
              }
         }
@@ -233,7 +228,6 @@ public class Backtracking {
         Persoon persoon2 = tafel.get(tafel.size()-1);
         wachtrij.add(persoon2);
         tafel.remove(persoon2);
-        System.out.println("de persoon die als laatste id lijst zit is: "+persoon2.getPersoon());
         if(vergelijken(persoon1, persoon2)==true) {
             aantal++;
             if(aantal==personen.size()) {
@@ -244,9 +238,6 @@ public class Backtracking {
         else {
             if(aantal==1) {
                 tafel.add(persoon2);
-            }
-            for(int i=0;i<=tafel.size()-1;i++) {
-                System.out.println("de volgorde tafel is: "+tafel.get(i).getPersoon());
             }
             return aantal;
         }
@@ -263,8 +254,6 @@ public class Backtracking {
     private static boolean vergelijken(Persoon persoon1, Persoon persoon2) {
         for(int i=0; i<persoon2.getNietVrienden().size();i++) {
             int geenvriendje = persoon2.getNietVrienden().get(i);
-            System.out.println("persoon2.getPersoon() is: "+persoon2.getPersoon());
-            System.out.println("persoon1.getPersoon() is: "+persoon1.getPersoon());
             if(persoon1.getPersoon() == geenvriendje) {
                 return true; //als persoon 1 geen vriend is van persoon 2
             }  
@@ -272,7 +261,6 @@ public class Backtracking {
         //zelfde maar de personen omgedraaid
         for(int i=0; i<persoon1.getNietVrienden().size();i++) {
             int geenvriendje = persoon1.getNietVrienden().get(i);
-            System.out.println("persoon2.getPersoon() is: "+persoon2.getPersoon());
             if(persoon2.getPersoon() == geenvriendje) {
                 return true;
             }  
