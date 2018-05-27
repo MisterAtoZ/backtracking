@@ -112,6 +112,16 @@ public class Backtracking {
                 System.out.println("de laatste persoon aan de tafel is: "+persoon2.getPersoon());
                 
                 int aantal = controleEersteLaatste(persoon1, personen, tafel, 1, wachtrij);
+                for(int i=0; i<wachtrij.size();i++) {
+                        //wachtrij.add(tafel.get(tafel.size()-1));
+                        //tafel.remove(tafel.get(tafel.size()-1));
+                        System.out.println("de wachtrij ziet er zo uit: "+wachtrij.get(i).getPersoon());
+                }
+                for(int i=0; i<tafel.size();i++) {
+                        //wachtrij.add(tafel.get(tafel.size()-1));
+                        //tafel.remove(tafel.get(tafel.size()-1));
+                        System.out.println("de tafel ziet er zo uit: "+tafel.get(i).getPersoon());
+                }
                 System.out.println("het aantal is: "+aantal);
                 if(aantal==1) {
                     return tafel;
@@ -284,7 +294,6 @@ public class Backtracking {
             for(int i=0;i<=tafel.size()-1;i++) {
                 System.out.println("de volgorde tafel is: "+tafel.get(i).getPersoon());
             }
-            //wachtrij.remove(persoon2);
             return aantal;
         }
     }
