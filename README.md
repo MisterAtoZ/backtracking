@@ -1,8 +1,8 @@
 **#backtrackingalgoritme van het filosofenprobleem**
 =====================================================
 
-```###Het algoritme zet de opgegeven personen aan een ronde tafel
-en zorgt ervoor dat er geen vijanden van mekaar langseen zitten```
+```###Het algoritme zet de opgegeven personen aan een ronde tafel en zorgt ervoor dat er geen vijanden van mekaar langseen zitten```
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 * Het algoritme werkt voor alle mogelijkheden die zijn geprobeerd
 
