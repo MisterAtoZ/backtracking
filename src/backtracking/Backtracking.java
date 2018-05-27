@@ -1,24 +1,17 @@
 package backtracking;
 
-import backtracking.GsonMaker.PersonenMaker;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Proxy.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Hoofdklasse, hierin staat ook het algoritme
+ * 
  * @author Jonathan
  */
 public class Backtracking {
@@ -29,16 +22,12 @@ public class Backtracking {
     public static void main(String[] args) {
         //serializePersonen(); //als er een nieuwe json voor de personen te veranderen, kan dat hiermee
         GsonReader[] invoer = deserializePersonen();
-        //ArrayList<Persoon> personen = new ArrayList<>();
         ArrayList<ArrayList<Integer>> uitkomsten = new ArrayList<>();
         
         for (int i=0; i<invoer.length;i++) {
             System.out.println("we zitten aan invoer: "+i);
             ArrayList<Persoon> personen = new ArrayList<>(Arrays.asList(invoer[i].getInvoer()));
-/*    for (int k=0; k<personen.size();k++) {
-      System.out.println("de persoon is: "+personen.get(k).getPersoon());
-    }
-*/            ArrayList<Persoon> uit  = getTafelSchikking(personen);
+            ArrayList<Persoon> uit  = getTafelSchikking(personen);
             ArrayList<Integer> namen = new ArrayList<>();
             for(int j=0; j<uit.size();j++) {
                 namen.add(uit.get(j).getPersoon());
@@ -54,28 +43,22 @@ public class Backtracking {
             FileWriter file = new FileWriter("uitkomsten.json.txt");
             file.write(jsonUitvoer);
             file.close();
-            //System.out.println(jsonUitvoer);
         } catch (IOException ex) {
             Logger.getLogger(Backtracking.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
-    
+
     /**
      * Functie waarmee het algoritme kan worden uitgevoerd
      * 
      * @param personen de lijst van personen die aan de tafel moeten komen
      * @return Optional<ArrayList<Persoon>> tafelFinito geeft de juiste tafelschikking, als er een is, terug
-     */
+    */
     public static ArrayList<Persoon> getTafelSchikking(ArrayList<Persoon> personen) {
         ArrayList<Persoon> tafel = new ArrayList<>();
         ArrayList<Persoon> wachtrij= new ArrayList<>();
         for (int i=0; i<personen.size(); i++) {
-            wachtrij.add(personen.get(i));
-            //System.out.println("de persoon in personen: "+personen.get(i).getPersoon());
-            //System.out.println("de persoon: "+ wachtrij.get(i).getPersoon()+" wordt nu in de wachtrij gezet");
-            //System.out.println("de vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getVrienden().get(0));
-            //System.out.println("de niet vrind op de 1e plaats van peroonhup is: "+wachtrij.get(0).getNietVrienden().get(0));
-            
+            wachtrij.add(personen.get(i));            
         }
         int parameter = personen.size()^2; // er zijn maximaal n^2 combinaties, als er zoveel zijn doorgelopen dan is er geen oplossing 
         ArrayList<Persoon> tafelFin = rec(wachtrij, tafel, personen, 0, parameter);        
@@ -83,61 +66,34 @@ public class Backtracking {
     }
     
     /**
-     * De hoofdfunctie om een persoon aan de tafel te zetten
+     * De hoofdfunctie om een persoon aan de tafel te zetten, deze werkt recursief
      * 
-     * @param wachtrij de wachtrij die er nog is
-     * @param tafel de lijst van personen die al aan de tafel zitten
-     * @param teller telt hoevaak dezelfde grootte wachtrij is getest 
-     * @param pogingen een groot aantal pogingen om als er geen oplossing is eeen null terug te sturen
-     * @return ArrayList<Persoon> geeft een arraylist (tafel) van personen terug met de juiste volgorde dat de personen moeten zitten.
+     * @param wachtrij de wachtrij die er nog is 
+     * @param tafel de ljist van personen die al aan de tafel zitten
+     * @param personen alle personen die aan de tafel moeten komen
+     * @param teller telt hoevaak dezelfde wachtrij is getest
+     * @param parameter telt hoeveel verschillende pogingen al zijn getest
+     * @return ArrayList<Persoon> geeft een ArrayList (tafel) terug met de juiste volgorde dat de personen moeten zitten
      */
     public static ArrayList<Persoon> rec(ArrayList<Persoon> wachtrij, ArrayList<Persoon> tafel, ArrayList<Persoon> personen, int teller, int parameter) {
-         //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
-/*    for (int k=0; k<personen.size();k++) {
-        System.out.println("de persoon in de wachtrij is: "+wachtrij.get(k).getPersoon());
-    }
-*/    
-/*    for (int k=0; k<personen.size();k++) {
-        System.out.println("de persoon aan de tafel is: "+tafel.get(k).getPersoon());
-    }
- */       //controleren of door de vorige bijvoeging de tafel nog inorde is
+        //als de plaats aan de tafel leeg is dan kan hier een persoon gaan zitten op voorwaarde dat er geen "vijanden" zitten
+        //controleren of door de vorige bijvoeging de tafel nog inorde is
         if(isGoed(tafel)) {
-            //System.out.println("de persoon die als laatste aan de tafel is gezet, mag daar voorlopig blijven zitten: "+tafel.get(tafel.size()-1).getPersoon());
             if(wachtrij.isEmpty()) {
-                //alle personen zitten
-                //voorlopig zitten ze als een jury allemaal langs elkaar
+                //alle personen zitten, nu controleren of de eerste en de laatste ook langs elkaar mogen zitten
                 Persoon persoon1 = tafel.get(0);
-                System.out.println("de eerste persoon aan de tafel is: "+persoon1.getPersoon());
-                Persoon persoon2 = tafel.get(tafel.size()-1);
-                System.out.println("de laatste persoon aan de tafel is: "+persoon2.getPersoon());
-                
+                //tellen hoeveel achtereenvolgende niet langs de 1e willen zitten, vanachter uit getelt 
                 int aantal = controleEersteLaatste(persoon1, personen, tafel, 1, wachtrij);
-                for(int i=0; i<wachtrij.size();i++) {
-                        //wachtrij.add(tafel.get(tafel.size()-1));
-                        //tafel.remove(tafel.get(tafel.size()-1));
-                        System.out.println("de wachtrij ziet er zo uit: "+wachtrij.get(i).getPersoon());
-                }
-                for(int i=0; i<tafel.size();i++) {
-                        //wachtrij.add(tafel.get(tafel.size()-1));
-                        //tafel.remove(tafel.get(tafel.size()-1));
-                        System.out.println("de tafel ziet er zo uit: "+tafel.get(i).getPersoon());
-                }
-                System.out.println("het aantal is: "+aantal);
+                
                 if(aantal==1) {
                     return tafel;
                 }
                 else {
-                    //tellen hoeveel er niet langs de 1e willen zitten, als niemand erlangs wilt zijn return null
                     //als de twee laatsten er niet langs willen zitte, dan de drie laatste terug in de wachtrij steken in omgekeerde volgorde 
-                    for(int i=0; i<wachtrij.size();i++) {
-                        //wachtrij.add(tafel.get(tafel.size()-1));
-                        //tafel.remove(tafel.get(tafel.size()-1));
-                        System.out.println("de wachtrij ziet er zo uit: "+wachtrij.get(i).getPersoon());
-                    }
                     return rec(wachtrij, tafel, personen, 0, parameter);
-                }
-                
-            } else {
+                } 
+            }
+            else {
                 //de tafel is inorde, er kan een nieuwe persoon worden toegevoegd nu
                 Persoon goed = wachtrij.get(0);
                 wachtrij.remove(0);
@@ -148,10 +104,11 @@ public class Backtracking {
         else if (!isGoed(tafel)) {
             System.out.println("de laatste persoon aan de tafel is niet goed: "+tafel.get(tafel.size()-1).getPersoon());
             //als alle mogelijkheden zijn getest en er werkt nog niks dan moet er een lege ArrayList worden teruggegeven
+            //hiervoor dient de parameter
             parameter--;
             if(parameter==0){
                 ArrayList<Persoon> LegeArrayList = new ArrayList<>();
-                return LegeArrayList;
+                return LegeArrayList; //er is geen oplossing mogelijk
             }
 
             Persoon slechtePersoon = tafel.get(tafel.size()-1);
@@ -175,20 +132,18 @@ public class Backtracking {
                 return rec(wachtrij, tafel, personen, teller, parameter);
             }
         } 
-        //in deze lijst staat de tafelschikking
         return tafel ;
     }
     
     /**
-     * controleert of het goed is dat de persoon aan de tafel gaat zitten
+     * Functie die controleert of het goed is dat de persoon aan de tafel gaat zitten
      * 
      * @param tafel de tafelverdeling
-     * @param queue de wachtrij aan de tafel
      * @return true als de persoon er mag zitten
      */
     public static boolean isGoed(ArrayList<Persoon> tafel) {
         
-        if(tafel.size()==0 || tafel.size()==1) {
+        if(tafel.isEmpty() || tafel.size()==1) {
             //er zit nog niemand of 1 iemand aan de tafel, niemand kan klagen
             return true;
         }
@@ -209,14 +164,13 @@ public class Backtracking {
     }
  
     /**
-     * fucntie om te vergelijken of 2 personen bevriend met elkaar zijn of niet
+     * fucntie om te vergelijken of 2 personen bevriend zijn of elkaars vijand zijn
      * 
      * @param persoon1 de eerste persoon
      * @param persoon2 de tweede persoon 
-     * @return true als ze vrienden zijn
+     * @return true als ze vrienden/geen vijanden zijn
      */
     private static boolean verg2Pers(Persoon persoon1, Persoon persoon2) {
-        //controleren of de personen elkaars vriend zijn of niet
         int naam1 = persoon1.getPersoon();
         int naam2 = persoon2.getPersoon();
         
@@ -228,7 +182,7 @@ public class Backtracking {
             int geenvriendje = persoon1.getNietVrienden().get(i);
             if(naam2 == geenvriendje) {
                 System.out.println("persoon"+persoon2.getPersoon()+" zit in de slechte lijst van persoon"+persoon1.getPersoon());
-            //persoon1 is niet bevriend met persoon 2
+            //persoon1 is niet bevriend met persoon2
             //ze mogen dus niet langs elkaar zitten
                 return false;
              }
@@ -238,8 +192,7 @@ public class Backtracking {
             int geenvriendje = persoon2.getNietVrienden().get(i);
             if(naam1 == geenvriendje) {
                 System.out.println("persoon"+persoon1.getPersoon()+" zit in de slechte lijst van persoon"+persoon2.getPersoon());
-            
-            //persoon1 is niet bevriend met persoon 2
+            //persoon2 is niet bevriend met persoon1
             //ze mogen dus niet langs elkaar zitten
                 return false;
              }
@@ -256,7 +209,7 @@ public class Backtracking {
         for(int i=0; i<persoon2.getVrienden().size();i++) {
             int vriendje = persoon2.getVrienden().get(i);
             if(naam1 == vriendje) {
-                //persoon1 is bevriend met persoon 2
+                //persoon2 is bevriend met persoon1
                 return true;
             }
         }
@@ -266,17 +219,17 @@ public class Backtracking {
     } 
     
     /**
+     * Functie die nagaat of de 1e en de laatste persoon aan de tafel vijanden zijn
      * 
-     * @param persoon1
-     * @param personen
-     * @param tafel
-     * @param aantal
-     * @param wachtrij
-     * @return 
+     * @param persoon1 persoon die als eerste aan de tafel zit
+     * @param personen alle personen die aan de tafel moeten komen
+     * @param tafel ArrayList met alle personen die voorlopig al aan de tafel zitten
+     * @param aantal Hoeveel personen achteraan de lijst opeenvolgend niet langs persoon1 willen zitten
+     * @param wachtrij De personen in deze lijst moeten nog aan de tafel worden gezet
+     * @return int aantal met hierin hoeveel personen er niet vijanden van persoon1 zijn
      */
     private static int controleEersteLaatste(Persoon persoon1, ArrayList<Persoon> personen, ArrayList<Persoon> tafel, int aantal, ArrayList<Persoon> wachtrij) {
         //geeft aan hoeveel van degene die op het laatste zitten niet langs de 1e wille zitte
-        //tellen hoeveel
         Persoon persoon2 = tafel.get(tafel.size()-1);
         wachtrij.add(persoon2);
         tafel.remove(persoon2);
@@ -289,8 +242,9 @@ public class Backtracking {
             return controleEersteLaatste(persoon1, personen, tafel, aantal, wachtrij);
         }
         else {
-            tafel.add(persoon2);
-            //wachtrij.remove(persoon2);
+            if(aantal==1) {
+                tafel.add(persoon2);
+            }
             for(int i=0;i<=tafel.size()-1;i++) {
                 System.out.println("de volgorde tafel is: "+tafel.get(i).getPersoon());
             }
@@ -299,10 +253,11 @@ public class Backtracking {
     }
     
     /**
-     * functie om te controleren of persoon1 in de lijst van persoon2 zit of andersom
+     * Functie om te controleren of persoon1 in de lijst van persoon2 zit of andersom
+     * Vergelijkbaar met verg2pers, maar deze functie is korter omdat er niet wordt gechecked of ze vrienden zijn
      * 
-     * @param persoon1 
-     * @param persoon2
+     * @param persoon1 eerste persoon om te vergelijken
+     * @param persoon2 tweede persoon om te vergelijken
      * @return Geeft true als persoon2 in de lijst van persoon1 zit of persoon 1 bij persoon2
      */
     private static boolean vergelijken(Persoon persoon1, Persoon persoon2) {
