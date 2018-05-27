@@ -109,17 +109,24 @@ public class Backtracking {
                 System.out.println("de eerste persoon aan de tafel is: "+persoon1.getPersoon());
                 Persoon persoon2 = tafel.get(tafel.size()-1);
                 System.out.println("de laatste persoon aan de tafel is: "+persoon2.getPersoon());
-                if(verg2Pers(persoon1, persoon2)==true) {
+                
+                int aantal = controleEersteLaatste(persoon1, personen, tafel, 1, wachtrij);
+                System.out.println("het aantal is: "+aantal);
+                if(aantal==1) {
                     return tafel;
                 }
                 else {
                     //tellen hoeveel er niet langs de 1e willen zitten, als niemand erlangs wilt zijn return null
-                    //als de twee laatsten er niet langs willen zitte, dan de drie laatste terug in de wachtrij steken in omgekeerde volgorde
-                    
-                    wachtrij.add(persoon2);
-                    tafel.remove(persoon2);
-                    wachtrij.add(tafel.get(tafel.size()-1));
-                    tafel.remove(tafel.size()-1);
+                    //als de twee laatsten er niet langs willen zitte, dan de drie laatste terug in de wachtrij steken in omgekeerde volgorde 
+                    if(aantal==personen.size()) {
+                        //niemand wil langs deze persoon zitten, er is dus geen opl
+                        return null;
+                    }
+                    for(int i=0; i<wachtrij.size();i++) {
+                        //wachtrij.add(tafel.get(tafel.size()-1));
+                        //tafel.remove(tafel.get(tafel.size()-1));
+                        System.out.println("de wachtrij ziet er zo uit: "+wachtrij.get(i).getPersoon());
+                    }
                     return rec(wachtrij, tafel, personen, 0);
                 }
                 
@@ -200,32 +207,6 @@ public class Backtracking {
      * @return true als de persoon er mag zitten
      */
     public static boolean isGoed(ArrayList<Persoon> tafel) {
-        /*
-        //hier controleren of de 2 personen vijanden zijn van elkaar
-        Queue<Persoon> queueT = new LinkedList<>(queue);
-        
-        if(!queueT.isEmpty()) {//er zijn nog personen zonder plaats
-            Persoon test = queueT.poll();
-            //personen verg met elkaar
-            ArrayList<Persoon> tafelT = new ArrayList<>(tafel);
-            
-            tafelT.add(test);
-            
-            int size = tafelT.size();
-            if(size==1) {
-                //naar de volgende stap gaan want er is nog geen verg mogelijk
-                return true;
-            }
-
-            else { 
-                //twee personen vergelijken
-                return verg2Pers(tafelT.get(size-1), tafelT.get(size-2));
-                //en kan de lijst verder worden gezet
-                //ze zijn geen vrienden van elkaar en mogen niet langseen zitten
-            }
-        }
-        return false; 
-        */
         
         if(tafel.size()==0 || tafel.size()==1) {
             //er zit nog niemand of 1 iemand aan de tafel, niemand kan klagen
@@ -305,16 +286,27 @@ public class Backtracking {
     } 
     
     
-    private static int controleEersteLaatste(Persoon persoon1, ArrayList<Persoon> personen, ArrayList<Persoon> tafel, int aantal) {
+    private static int controleEersteLaatste(Persoon persoon1, ArrayList<Persoon> personen, ArrayList<Persoon> tafel, int aantal, ArrayList<Persoon> wachtrij) {
         //geeft aan hoeveel van degene die op het laatste zitten niet langs de 1e wille zitte
         //tellen hoeveel
         Persoon persoon2 = tafel.get(tafel.size()-1);
+        wachtrij.add(persoon2);
+        tafel.remove(persoon2);
+        System.out.println("de persoon die als laatste id lijst zit is: "+persoon2.getPersoon());
         if(vergelijken(persoon1, persoon2)==true) {
             aantal++;
-            tafel.remove(persoon2);
-            return aantal;
+            if(aantal==personen.size()) {
+                return aantal;
+            }
+            return controleEersteLaatste(persoon1, personen, tafel, aantal, wachtrij);
         }
         else {
+            tafel.add(persoon2);
+            //wachtrij.remove(persoon2);
+            for(int i=0;i<=tafel.size()-1;i++) {
+                System.out.println("de volgorde tafel is: "+tafel.get(i).getPersoon());
+            }
+            //wachtrij.remove(persoon2);
             return aantal;
         }
     }
@@ -329,10 +321,19 @@ public class Backtracking {
     private static boolean vergelijken(Persoon persoon1, Persoon persoon2) {
         for(int i=0; i<persoon2.getNietVrienden().size();i++) {
             int geenvriendje = persoon2.getNietVrienden().get(i);
+            System.out.println("persoon2.getPersoon() is: "+persoon2.getPersoon());
+            System.out.println("persoon1.getPersoon() is: "+persoon1.getPersoon());
+            if(persoon1.getPersoon() == geenvriendje) {
+                return true; //als persoon 1 geen vriend is van persoon 2
+            }  
+        }
+        //zelfde maar de personen omgedraaid
+        for(int i=0; i<persoon1.getNietVrienden().size();i++) {
+            int geenvriendje = persoon1.getNietVrienden().get(i);
+            System.out.println("persoon2.getPersoon() is: "+persoon2.getPersoon());
             if(persoon2.getPersoon() == geenvriendje) {
                 return true;
-            }
-            
+            }  
         }
         return false;
     }
